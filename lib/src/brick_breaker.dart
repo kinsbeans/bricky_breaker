@@ -86,6 +86,7 @@ class BrickBreaker extends FlameGame with HasCollisionDetection, KeyboardEvents,
     world.removeAll(world.children.query<Ball>());
     world.removeAll(world.children.query<Bat>());
     world.removeAll(world.children.query<Brick>());
+    world.removeAll(world.children.query<Obstacle>());
     clearPowerUps();
 
     final initialVelocity = Vector2(
@@ -126,7 +127,7 @@ class BrickBreaker extends FlameGame with HasCollisionDetection, KeyboardEvents,
           velocity: initialVelocity,
         ));
     }
-
+ add(DeathZone());
     world.add(Bat(
         size: Vector2(batWidth, batHeight),
         cornerRadius: const Radius.circular(ballRadius / 2),
@@ -147,6 +148,20 @@ class BrickBreaker extends FlameGame with HasCollisionDetection, KeyboardEvents,
     ];
     world.addAll(obstacles);
 
+    final teleportingObstacles = [
+      TeleportingObstacle(
+        position: Vector2(width * 0.25, height * 0.5),
+        size: obstacleSize,
+        color: Colors.orange,
+      ),
+      TeleportingObstacle(
+        position: Vector2(width * 0.75, height * 0.5),
+        size: obstacleSize,
+        color: Colors.purple,
+      ),
+    ];
+    world.addAll(teleportingObstacles);
+
     world.addAll([
   for (var i = 0; i < brickColors.length; i++)
     for (var j = 1; j <= 5; j++)
@@ -156,7 +171,7 @@ class BrickBreaker extends FlameGame with HasCollisionDetection, KeyboardEvents,
           (j + 2.0) * brickHeight + j * brickGutter,
         ),
         color: brickColors[i],
-        hitPoints: (math.Random().nextDouble() < 0.05) ? 5 : 1, // 5% chance for high hit points
+        hitPoints: (math.Random().nextDouble() < 0.20) ? 5 : 1, // 20% chance for high hit points
       ),
 ]);
 
@@ -234,7 +249,12 @@ void activateMultiBall() {
   }
 }
 
-
+void activateFireball(double duration) {
+  for (final ball in world.children.whereType<Ball>()) {
+    ball.activateFireball(duration);
+  }
+  activatePowerUp('Fireball', Icons.local_fire_department, duration);
+}
 
   void clearPowerUps() {
   for (final effect in activePowerUps) {
@@ -310,7 +330,11 @@ void activateMultiBall() {
         final initialSpeed = ball.initialVelocity.length;
         ball.velocity = ball.velocity.normalized() * initialSpeed;
       }
-    }
+    } else if (effect.name == 'Fireball') {
+  for (final ball in world.children.whereType<Ball>()) {
+    ball.deactivateFireball();
+  }
+}
   }
 
   @override
@@ -344,13 +368,6 @@ void activateMultiBall() {
               fontSize: 24,
               color: Colors.white.withOpacity(effect.opacity),
               fontWeight: FontWeight.bold,
-              shadows: [
-                Shadow(
-                  blurRadius: 10.0,
-                  color: Colors.black,
-                  offset: Offset(0, 0),
-                ),
-              ],
             ),
           ),
         ),

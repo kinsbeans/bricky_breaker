@@ -8,16 +8,21 @@ class Spark extends Component {
     required Color color,
   }) {
     final paint = Paint()..color = color;
+
+    // Use a simpler particle system with fewer particles
     add(ParticleSystemComponent(
       position: position,
       particle: Particle.generate(
-        count: 15, // Increase the number of particles
-        generator: (i) => AcceleratedParticle(
-          acceleration: Vector2.random() * 300 - Vector2(150, 150),
-          speed: Vector2.random() * 150 - Vector2(75, 75),
-          child: CircleParticle(
-            radius: 3.0, // Increase the size of the particles
-            paint: paint,
+        count: 10, // Reduced particle count
+        generator: (i) => MovingParticle(
+          from: Vector2.zero(),
+          to: Vector2.random() * 100 - Vector2(50, 50), // Simpler movement
+          child: ComputedParticle(
+            renderer: (canvas, particle) {
+              final radius = 3.0 * (1 - particle.progress); // Fade out effect
+              canvas.drawCircle(Offset.zero, radius, paint);
+            },
+            lifespan: 0.3, // Shorter lifespan
           ),
         ),
       ),

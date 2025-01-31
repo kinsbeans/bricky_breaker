@@ -11,7 +11,7 @@ class BouncyBall extends Ball {
     required super.difficultyModifier,
   }) {
     paint.color = Colors.green;
-    maxSpeed = 1000.0; 
+    maxSpeed = 800.0; 
   }
 
   @override

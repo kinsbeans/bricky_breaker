@@ -55,13 +55,24 @@ class Bat extends PositionComponent with DragCallbacks, CollisionCallbacks, HasG
   }
 
   void enlarge(double factor) {
-  final newWidth = size.x * factor;
-  size.x = newWidth.clamp(size.x, game.size.x); // Cap the width to screen width
-}
-void resize(double factor) {
-  final newWidth = size.x * factor;
-  size.x = newWidth.clamp(size.x * 0.5, game.size.x); // Adjust width between half the original size and the screen width
-}
+    final newWidth = size.x * factor;
+    size.x = newWidth.clamp(size.x, game.size.x);
+    _updateHitbox(); // Add this line
+  }
+
+  void resize(double factor) {
+    final newWidth = size.x * factor;
+    size.x = newWidth.clamp(size.x * 0.5, game.size.x);
+    _updateHitbox(); // Add this line
+  }
+
+  void _updateHitbox() {
+    // Correctly remove existing hitbox children
+    children.whereType<RectangleHitbox>().forEach((child) {
+      child.removeFromParent(); // Explicitly remove each hitbox child
+    });
+    add(RectangleHitbox()); // Add new hitbox
+  }
 
 
   void changeColor() {

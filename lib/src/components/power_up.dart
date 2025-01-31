@@ -4,8 +4,15 @@ import 'package:flutter/material.dart';
 import '../brick_breaker.dart';
 import 'components.dart';
 
-enum PowerUpType { extraLife, largerBat, slowBall, shrinkBat, fastBall, multiBall }
-
+enum PowerUpType { 
+  extraLife, 
+  largerBat, 
+  slowBall, 
+  shrinkBat, 
+  fastBall, 
+  multiBall, 
+  fireball
+}
 
 class PowerUp extends PositionComponent with CollisionCallbacks, HasGameReference<BrickBreaker> {
   final PowerUpType type;
@@ -48,6 +55,10 @@ class PowerUp extends PositionComponent with CollisionCallbacks, HasGameReferenc
   case PowerUpType.multiBall:
     icon = Icons.bubble_chart;
     color = Colors.cyanAccent;
+  case PowerUpType.fireball:
+    icon = Icons.local_fire_department;
+    color = Colors.orange;
+    break;
 }
 
 
@@ -85,7 +96,7 @@ class PowerUp extends PositionComponent with CollisionCallbacks, HasGameReferenc
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
-    if (other is Bat) {
+    if (other is Bat || other is Ball) {
       applyEffect();
       removeFromParent(); // Directly remove the power-up upon collision
     }
@@ -112,6 +123,9 @@ class PowerUp extends PositionComponent with CollisionCallbacks, HasGameReferenc
     case PowerUpType.multiBall:
       game.activateMultiBall(); 
       break;
+  case PowerUpType.fireball:
+  game.activateFireball(8); // 15 second duration
+  break;
   }
 }
 
